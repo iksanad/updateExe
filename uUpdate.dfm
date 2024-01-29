@@ -4,8 +4,8 @@ object frmUpdate: TfrmUpdate
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Version 1.0'
-  ClientHeight = 356
-  ClientWidth = 887
+  ClientHeight = 359
+  ClientWidth = 897
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,8 +20,8 @@ object frmUpdate: TfrmUpdate
   object img1: TImage
     Left = 0
     Top = 0
-    Width = 887
-    Height = 356
+    Width = 897
+    Height = 359
     Margins.Left = 4
     Margins.Top = 4
     Margins.Right = 4
@@ -564,8 +564,6 @@ object frmUpdate: TfrmUpdate
       9368C122592B57ECDCBA6DED0EA1AB372F10BE7E67B0158C77EEDBB77B0E234E
       2C607180C68E1F1FE6A3B80F64CA8D2D4F4E2CD9F28110003B}
     Stretch = True
-    ExplicitWidth = 897
-    ExplicitHeight = 359
   end
   object Label1: TLabel
     Left = 35
@@ -656,7 +654,6 @@ object frmUpdate: TfrmUpdate
     User = 'Fatra'
     Password = '73fangfang'
     Protocol = 'mysql'
-    LibraryLocation = 'D:\appDekstop\PLATINUM\fmain2010feb -NEW\libmySQL.dll'
     Left = 288
     Top = 120
   end
