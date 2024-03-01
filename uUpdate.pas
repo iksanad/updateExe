@@ -44,6 +44,7 @@ type
     vFileDownloadLokal, LServer, LDatabase, LDirServer: string;
     function updateExe(): Boolean;
     function updateTemplateInv(): Boolean;
+    procedure CopyFile(AFileSource, AfileDest: string);
   public
     { Public declarations }
   end;
@@ -131,7 +132,7 @@ begin
           if (searchResult.Attr and faDirectory) = 0 then
           begin
             qLokal.Append;
-            qLokal.FieldByName('FILE_NAME').AsString := searchResult.Name;
+            qLokal.FieldByName('FILE_NAME').AsString := UpperCase((searchResult.Name));
             qLokal.FieldByName('DATE_MODIFIED').AsDateTime := FileDateToDateTime(searchResult.Time);
             qLokal.Post;
           end;
@@ -186,8 +187,10 @@ begin
   begin
 //    ShowMessage(FormatDateTime('dd-mm-yyyy hh:nn:ss', qLokal.FieldByName('DATE_MODIFIED').AsDateTime));
     qLokal.Filtered := False;
-    qLokal.Filter := 'FILE_NAME=' + QuotedStr(ParamStr(2) + '.exe') + ' AND DATE_MODIFIED > ' + QuotedStr(vDate1);
+    qLokal.Filter := 'FILE_NAME=' + UpperCase(QuotedStr(ParamStr(2) + '.exe')) + ' AND DATE_MODIFIED > ' + QuotedStr(vDate1);
     qLokal.Filtered := True;
+//    ShowMessage('FILE_NAME=' + QuotedStr(ParamStr(2) + '.exe') + ' AND DATE_MODIFIED > ' + QuotedStr(vDate1));
+//    ShowMessage(IntToStr(qLokal.RecordCount));
   end
   else
   begin
@@ -233,16 +236,19 @@ begin
   qTgl.Active := True;
   lblProses.Caption := 'Downloading application...';
   Sleep(1000);
-
+  qLokal.Active := true;
   if qLokal.Active then
   begin
     if qLokal.RecordCount > 0 then
     begin
       if not TDirectory.Exists(vFilePath + 'old') then
         TDirectory.CreateDirectory(vFilePath + 'old');
-      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'), false);
+//      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'), false);
+      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'));
       DeleteFile(vFilePath + vFileName);
-      CopyFile(pchar(mmo1.Lines[49] + qLokal.FieldByName('FILE_NAME').AsString), PChar(ExtractFilePath(Application.ExeName) + vFileName), False);
+//      CopyFile(pchar(mmo1.Lines[49] + qLokal.FieldByName('FILE_NAME').AsString), PChar(ExtractFilePath(Application.ExeName) + vFileName), False);
+//      CopyFile(pchar(mmo1.Lines[49] + qLokal.FieldByName('FILE_NAME').AsString), PChar(ExtractFilePath(Application.ExeName) + vFileName));
+      CopyFile(pchar(mmo1.Lines[49] + ParamStr(2) + '.exe'), PChar(ExtractFilePath(Application.ExeName) + vFileName));
     end;
   end
   else if qUpdate.Active then
@@ -251,7 +257,8 @@ begin
     begin
       if not TDirectory.Exists(vFilePath + 'old') then
         TDirectory.CreateDirectory(vFilePath + 'old');
-      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'), false);
+//      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'), false);
+      CopyFile(pchar(vFilePath + vFileName), pchar(vFilePath + 'old\' + FormatDateTime('yyyymmddhhnn', qTglTGL.AsDateTime) + '.exe'));
       DeleteFile(vFilePath + vFileName);
       IdFTP1.Get(qUpdateFILE_NAME.AsString, ExtractFilePath(Application.ExeName) + vFileName);
     end
@@ -334,6 +341,24 @@ begin
     PostMessage(Self.Handle, wm_close, 0, 0);
   end;
 
+end;
+
+procedure TfrmUpdate.CopyFile(AFileSource, AfileDest: string);
+var
+  NewFile: TFileStream;
+  OldFile: TFileStream;
+begin
+  OldFile := TFileStream.Create(AFileSource, fmOpenRead or fmShareDenyWrite);
+  try
+    NewFile := TFileStream.Create(AFileDest, fmCreate or fmShareDenyRead);
+    try
+      NewFile.CopyFrom(OldFile, OldFile.Size);
+    finally
+      FreeAndNil(NewFile);
+    end;
+  finally
+    FreeAndNil(OldFile);
+  end;
 end;
 
 end.
